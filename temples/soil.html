@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Soil
+{% endblock %}
+
+{% block content %}
+
+<h2> Jordfugtighed</h2>
+
+<p>Aktuel fugtighed:</p>
+<h1><span id="soil">--</span> %</h1>
+
+<p>Pumpe status:</p>
+<h3 id="pump">--</h3>
+
+<button class="btn btn-primary" onclick="water()">Vand i 3 sek</button>
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+<script>
+var socket = io();
+
+// ----------------------
+// Hent soil data live
+// ----------------------
+function getSoil() {
+    socket.emit('get_soil');
+}
+
+// modtag soil data
+socket.on('soil', function(data) {
+    document.getElementById('soil').innerText = data;
+});
+
+// ----------------------
+// Pumpe status
+// ----------------------
+socket.on('pump_status', function(data) {
+    document.getElementById('pump').innerText = data;
+});
+
+// ----------------------
+// Manuel vanding
+// ----------------------
+function water() {
+    socket.emit('water', {seconds: 3});
+}
+
+// ----------------------
+// FIX: hent data én gang ved start + interval
+// ----------------------
+getSoil();
+setInterval(getSoil, 2000);
+</script>
+
+{% endblock %}
