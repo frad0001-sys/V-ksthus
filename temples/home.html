@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Home Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1>Væksthus Dashboard</h1>
+
+<hr>
+
+<div class="row">
+
+<!-- SOIL -->
+<div class="col-md-4">
+    <div class="card p-3">
+        <h3>Jordfugtighed</h3>
+        <h2><span id="soil">--</span>%</h2>
+    </div>
+</div>
+
+<!-- LIGHT -->
+<div class="col-md-4">
+    <div class="card p-3">
+        <h3>Lys</h3>
+        <p>ADC: <span id="adc">--</span></p>
+        <p>Stage: <span id="stage">--</span></p>
+    </div>
+</div>
+
+<!-- PUMP -->
+<div class="col-md-4">
+    <div class="card p-3">
+        <h3>Pumpe</h3>
+        <h4 id="pump">Slukket</h4>
+    </div>
+</div>
+
+</div>
+
+<hr>
+
+<!-- CAMERA -->
+<div class="card p-3">
+    <h3>Seneste billede</h3>
+
+    <img src="{{ url_for('static', filename='images/latest.jpg') }}"
+         width="100%"
+         style="max-width:600px; border-radius:10px;">
+
+    <br><br>
+
+    <button class="btn btn-primary" onclick="refreshCam()">Opdater billede</button>
+</div>
+
+<script>
+var socket = io();
+
+/* ---------------- SOIL ---------------- */
+socket.on('soil', function(data) {
+    document.getElementById('soil').innerText = data.value;
+});
+
+/* ---------------- LIGHT ---------------- */
+socket.on('light', function(data) {
+    document.getElementById('adc').innerText = data.adc;
+    document.getElementById('stage').innerText = data.stage;
+});
+
+/* ---------------- PUMP ---------------- */
+socket.on('pump_status', function(data) {
+    document.getElementById('pump').innerText = data;
+});
+
+/* ---------------- REQUEST DATA LOOP ---------------- */
+function update() {
+    socket.emit('get_soil');
+    socket.emit('get_light');
+}
+
+setInterval(update, 2000);
+update();
+
+/* ---------------- CAMERA ---------------- */
+function refreshCam() {
+    fetch("/camera").then(() => {
+        document.querySelector("img").src =
+            "/static/images/latest.jpg?ts=" + new Date().getTime();
+    });
+}
+</script>
+
+{% endblock %}
