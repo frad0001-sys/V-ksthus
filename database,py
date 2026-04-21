@@ -1,0 +1,98 @@
+import sqlite3
+from datetime import datetime
+
+DB_NAME = "greenhouse.db"
+
+# -----------------------
+# INIT DATABASE
+# -----------------------
+
+def init_db():
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS soil_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            value REAL,
+            timestamp TEXT
+        )
+    """)
+
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS light_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            adc INTEGER,
+            stage TEXT,
+            timestamp TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+# -----------------------
+# INSERT SOIL DATA
+# -----------------------
+
+def insert_soil(value):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    c.execute(
+        "INSERT INTO soil_log (value, timestamp) VALUES (?, ?)",
+        (value, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    )
+
+    conn.commit()
+    conn.close()
+
+# -----------------------
+# INSERT LIGHT DATA
+# -----------------------
+
+def insert_light(adc, stage):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    c.execute(
+        "INSERT INTO light_log (adc, stage, timestamp) VALUES (?, ?, ?)",
+        (adc, stage, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    )
+
+    conn.commit()
+    conn.close()
+
+# -----------------------
+# GET SOIL HISTORY
+# -----------------------
+
+def get_soil_history(limit=20):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    c.execute(
+        "SELECT * FROM soil_log ORDER BY id DESC LIMIT ?",
+        (limit,)
+    )
+
+    data = c.fetchall()
+    conn.close()
+    return data
+
+# -----------------------
+# GET LIGHT HISTORY
+# -----------------------
+
+def get_light_history(limit=20):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    c.execute(
+        "SELECT * FROM light_log ORDER BY id DESC LIMIT ?",
+        (limit,)
+    )
+
+    data = c.fetchall()
+    conn.close()
+    return data
