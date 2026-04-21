@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Light
+{% endblock %}
+
+{% block content %}
+
+<h2> Lysmåling (LDR)</h2>
+
+<p>ADC værdi:</p>
+<h1><span id="adc">--</span></h1>
+
+<p>Lysniveau:</p>
+<h2 id="stage">--</h2>
+
+<p>PWM (Rød): <span id="red">--</span></p>
+<p>PWM (Blå): <span id="blue">--</span></p>
+
+<hr>
+
+<button class="btn btn-secondary" onclick="getLight()">Opdater lys</button>
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+<script>
+var socket = io();
+
+// ----------------------
+// Hent lysdata
+// ----------------------
+function getLight() {
+    socket.emit('get_light');
+}
+
+// modtag data fra server
+socket.on('light', function(data) {
+    document.getElementById('adc').innerText = data.adc;
+    document.getElementById('stage').innerText = data.stage;
+    document.getElementById('red').innerText = data.red;
+    document.getElementById('blue').innerText = data.blue;
+});
+
+// ----------------------
+// FIX: initial load + interval
+// ----------------------
+getLight();
+setInterval(getLight, 2000);
+</script>
+
+{% endblock %}
