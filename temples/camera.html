@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Kamera</h2>
+
+<p>Seneste billede fra væksthus:</p>
+
+<img src="{{ url_for('static', filename='images/latest.jpg') }}"
+     width="600"
+     style="border-radius: 10px; border: 2px solid #ccc;">
+
+<br><br>
+
+<button class="btn btn-primary" onclick="refresh()">Tag nyt billede</button>
+
+<script>
+function refresh() {
+    fetch("/camera")
+        .then(() => location.reload());
+}
+</script>
+
+{% endblock %}
